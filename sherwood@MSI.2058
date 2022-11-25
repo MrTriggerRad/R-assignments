@@ -1,0 +1,36 @@
+install.packages("stringr")
+library(dplyr)
+library(stringr)
+
+#data import + filter
+td<-read.table("google_news_february2022_sample_en.txt",sep="\t", header=T, quote=c("'","'"))
+tds<-td%>%filter(audience_iso3=="USA")
+
+#Text prep
+tds$ft_lower<-str_to_lower(tds$ft) #Turn all upper case characters into lower case characters
+tds$ft_lower<-str_replace_all(tds$ft_lower,";","") #Clean up string of extraneous characters
+
+#Analysis
+tds$ukraine<-str_count(tds$ft_lower,"ukraine")
+sum(tds$ukraine)
+
+#binary (yes/no) count for occurrences of a word
+tds$ukraine_bin<-str_detect(tds$ft_lower, "ukraine")
+sum(tds$ukraine_bin)
+
+#introduce error with incorrect string
+tds$ft_lower_error<-str_replace_all(tds$ft_lower,"ukraine","ukraaine")
+
+#count again, but this time nothing will come for ukraine, only for ukraaine
+tds$ukraine2<-str_count(tds$ft_lower_error,"ukraine")
+sum(tds$ukraine2)
+tds$ukraine3<-str_count(tds$ft_lower_error,"ukraaine")
+sum(tds$ukraine3)
+
+#More complex string identification
+tds$ukraine4<-str_count(tds$ft,"[Uu]kraine")
+sum(tds$ukraine4)
+tds$ukraine5<-str_count(tds$ft,"[Uu]krain.") #includes e.g. ukrainian
+sum(tds$ukraine5)
+
+
